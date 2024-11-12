@@ -1,10 +1,10 @@
 [network]
-network = "Mainnet"
+network = "Testnet"
 listen_addr = "0.0.0.0"
 [state]
 cache_dir = "/var/cache/zebrad-cache"
 [rpc]
-listen_addr = "0.0.0.0:8232"
+listen_addr = "0.0.0.0:18232"
 
 # automatically use multiple CPU threads
 parallel_cpu_threads = 0
