@@ -15,7 +15,9 @@ services:
       test: ["CMD-SHELL", "curl --data-binary '{\"jsonrpc\":\"2.0\",\"id\":\"curltest\",\"method\":\"getinfo\",\"params\":[]}' -H 'Content-Type: application/json' http://127.0.0.1:8232 || exit 1"]
     volumes:
     - zcash_zebrad_cache:/var/cache/zebrad-cache
-    - ./zebrad.toml:/etc/zebrad/zebrad.toml
+    - type: bind
+      source: ./zebrad.toml
+      target: /etc/zebrad/zebrad.toml
   litewalletd:
     image: electriccoinco/lightwalletd
     depends_on:
