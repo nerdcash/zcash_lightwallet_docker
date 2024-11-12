@@ -1,0 +1,41 @@
+services:
+  zebrad:
+    image: zfnd/zebra
+    environment:
+    - RPC_PORT=8232
+    restart: unless-stopped
+    ports:
+    # - 8232:8232 # RPC (security sensitive). Don't list this as the litewalletd server can talk to it anyway.
+    - 8233:8233 # Zcash network (public)
+    healthcheck:
+      start_period: 1m
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      test: ["CMD-SHELL", "curl --data-binary '{\"jsonrpc\":\"2.0\",\"id\":\"curltest\",\"method\":\"getinfo\",\"params\":[]}' -H 'Content-Type: application/json' http://127.0.0.1:8232 || exit 1"]
+    volumes:
+    - zcash_zebrad_cache:/var/cache/zebrad-cache
+    - ./zebrad.toml:/etc/zebrad/zebrad.toml
+  litewalletd:
+    image: electriccoinco/lightwalletd
+    depends_on:
+      zebrad:
+        condition: service_healthy
+    command: >
+      --grpc-bind-addr 0.0.0.0:9067
+      --tls-cert /srv/lightwalletd/conf/fullchain.pem
+      --tls-key /srv/lightwalletd/conf/privkey.pem
+      --zcash-conf-path /srv/lightwalletd/conf/zcash.conf
+      --data-dir /srv/lightwalletd/db_volume
+      --log-file /dev/stdout
+    restart: unless-stopped
+    ports:
+    - 9067:9067
+    volumes:
+    - litewalletd:/srv/lightwalletd/db_volume
+    - ./lightwalletd_conf:/srv/lightwalletd/conf
+volumes:
+  zcash_zebrad_cache:
+    external: true # ensures the volume will never be deleted by docker-compose down
+  litewalletd:
+
